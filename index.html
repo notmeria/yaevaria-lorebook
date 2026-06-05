@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adenca — The Sacred Tarot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=Spectral:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --void: #05040f;
+  --deep: #0b0820;
+  --midnight: #120e2e;
+  --celestial: #1a1640;
+  --starlight: #e8e0ff;
+  --moon: #c8baff;
+  --silver: #a898dd;
+  --gold: #d4a843;
+  --gold-glow: #f0c060;
+  --sun-orange: #e8762a;
+  --lily: #f0ece8;
+  --mist: rgba(200,186,255,0.12);
+  --card-w: 260px;
+  --card-h: 440px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+
+body {
+  background: var(--void);
+  color: var(--starlight);
+  font-family: 'Spectral', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+/* ═══ BACKGROUND ═══ */
+.cosmos {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -10%, #1a0e40 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 20% 50%, #0d0a25 0%, transparent 50%),
+    radial-gradient(ellipse 60% 60% at 80% 80%, #15082a 0%, transparent 50%);
+  background-color: var(--void);
+}
+.nebula {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 40% 30% at 15% 30%, rgba(100,60,200,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 60%, rgba(200,140,60,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 30% 50% at 50% 100%, rgba(60,100,180,0.06) 0%, transparent 70%);
+}
+canvas#stars {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+}
+
+.page-wrap { position: relative; z-index: 1; }
+
+/* ═══ HEADER ═══ */
+header {
+  text-align: center;
+  padding: 80px 20px 60px;
+  position: relative;
+}
+.header-rune {
+  font-size: 1.4rem; color: var(--silver); letter-spacing: 20px;
+  margin-bottom: 20px; opacity: 0.5;
+  animation: breathe 6s ease-in-out infinite;
+}
+@keyframes breathe { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:.7;transform:scale(1.02)} }
+
+.title-eyebrow {
+  font-family: 'Cinzel', serif; font-size: .75rem;
+  letter-spacing: 10px; text-transform: uppercase;
+  color: var(--gold); opacity: 0.7; margin-bottom: 16px;
+}
+.site-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 900;
+  background: linear-gradient(160deg, var(--gold-glow) 0%, var(--gold) 40%, var(--sun-orange) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 40px rgba(212,168,67,0.4));
+  letter-spacing: 6px; line-height: 1;
+  margin-bottom: 8px;
+}
+.site-subtitle {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(.8rem, 2vw, 1rem);
+  color: var(--silver); letter-spacing: 8px; text-transform: uppercase;
+  margin-bottom: 32px; opacity: 0.6;
+}
+.header-ornament-line {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; margin-bottom: 28px;
+}
+.orn-line {
+  width: 200px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.orn-diamond { color: var(--gold); font-size: .9rem; }
+
+.header-lore {
+  max-width: 640px; margin: 0 auto;
+  font-size: 1.05rem; line-height: 1.9; color: rgba(232,224,255,0.65);
+  font-style: italic;
+}
+
+/* ═══ SECTION ═══ */
+.section-label {
+  font-family: 'Cinzel', serif;
+  font-size: .7rem; letter-spacing: 8px; text-transform: uppercase;
+  color: var(--gold); opacity: 0.5; text-align: center;
+  margin: 70px 0 6px;
+}
+.section-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.1rem, 3vw, 1.8rem);
+  color: var(--moon); text-align: center;
+  letter-spacing: 3px; margin-bottom: 12px;
+}
+.section-desc {
+  text-align: center; max-width: 560px; margin: 0 auto 56px;
+  color: rgba(200,186,255,0.5); font-style: italic; font-size: .95rem; line-height: 1.8;
+}
+
+/* ═══ TAROT GRID ═══ */
+.tarot-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 36px 28px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px 100px;
+}
+
+/* ═══ TAROT CARD ═══ */
+.tarot-card {
+  width: var(--card-w);
+  flex-shrink: 0;
+  cursor: pointer;
+  perspective: 1000px;
+  animation: cardRise 0.8s ease backwards;
+}
+@keyframes cardRise {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.card-inner {
+  width: var(--card-w);
+  height: var(--card-h);
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 14px;
+}
+.tarot-card.revealed .card-inner {
+  transform: rotateY(180deg);
+}
+/* Cards without flip (always show front) */
+.tarot-card.no-flip .card-inner {
+  transform: none !important;
+}
+
+.card-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid rgba(212,168,67,0.35);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.7), inset 0 0 30px rgba(0,0,0,0.4);
+  background: transparent;
+}
+.card-face img {
+  width: 100%; height: 100%; object-fit: cover;
+  display: block;
+}
+.card-back-face { z-index: 2; }
+.tarot-card.no-flip .card-back-face {
+  transform: none;
+  z-index: 1;
+  backface-visibility: visible !important;
+}
+.card-front-face {
+  transform: rotateY(180deg);
+  z-index: 1;
+}
+/* Always-visible cards: art PNG floats over card-back */
+.tarot-card.no-flip .card-front-face {
+  transform: none;
+  z-index: 2;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  overflow: hidden;
+}
+.tarot-card.no-flip .card-front-face img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  background: transparent;
+}
+.tarot-card.no-flip .card-inner {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Card glow on hover */
+.tarot-card:hover .card-face {
+  border-color: rgba(212,168,67,0.7);
+  box-shadow: 0 0 30px rgba(212,168,67,0.3), 0 12px 50px rgba(0,0,0,0.7);
+}
+.tarot-card:hover .card-inner {
+  transform: rotateY(180deg) translateY(-8px) scale(1.03);
+}
+.tarot-card.no-flip:hover .card-inner {
+  transform: translateY(-8px) scale(1.03) !important;
+}
+
+/* Card title below */
+.card-label {
+  text-align: center; margin-top: 14px;
+}
+.card-name {
+  font-family: 'Cinzel', serif;
+  font-size: .75rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); font-weight: 700;
+  text-shadow: 0 0 12px rgba(212,168,67,0.5);
+}
+.card-epithet {
+  font-family: 'IM Fell English', serif;
+  font-size: .8rem; font-style: italic;
+  color: rgba(200,186,255,0.5); margin-top: 3px;
+}
+
+/* ═══ MODAL ═══ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(5, 4, 15, 0.88);
+  backdrop-filter: blur(12px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.modal-overlay.open {
+  opacity: 1; pointer-events: all;
+}
+.modal-panel {
+  width: min(780px, 92vw);
+  max-height: 85vh;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid rgba(212,168,67,0.3);
+  box-shadow: 0 0 80px rgba(100,60,200,0.2), 0 0 120px rgba(212,168,67,0.1);
+  background: linear-gradient(160deg, #0e0b25 0%, #130f30 50%, #0d0a20 100%);
+  transform: scale(0.94) translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  overflow: hidden;
+}
+.modal-overlay.open .modal-panel {
+  transform: scale(1) translateY(0);
+}
+.modal-card-col {
+  width: 250px; flex-shrink: 0;
+  padding: 40px 20px 40px 36px;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  position: sticky; top: 0; align-self: flex-start;
+}
+.modal-card-img {
+  width: 194px; height: 330px; object-fit: cover;
+  border-radius: 12px; border: 1.5px solid rgba(212,168,67,0.5);
+  box-shadow: 0 0 40px rgba(212,168,67,0.2), 0 10px 40px rgba(0,0,0,0.6);
+}
+/* Landscape modal image (for wide cards) */
+.modal-card-img.landscape {
+  width: 194px; height: 122px; object-fit: cover;
+}
+.modal-card-name {
+  font-family: 'Cinzel', serif; font-size: .72rem; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--gold); text-align: center;
+}
+.modal-arcana {
+  font-family: 'IM Fell English', serif; font-size: .8rem; font-style: italic;
+  color: var(--silver); text-align: center; opacity: 0.7;
+}
+.modal-content-col {
+  flex: 1;
+  padding: 40px 36px 40px 28px;
+  border-left: 1px solid rgba(212,168,67,0.1);
+  overflow-y: auto;
+  max-height: 85vh;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212,168,67,0.3) transparent;
+}
+.modal-eyebrow {
+  font-family: 'Cinzel', serif; font-size: .65rem;
+  letter-spacing: 8px; text-transform: uppercase;
+  color: var(--gold); opacity: 0.6; margin-bottom: 10px;
+}
+.modal-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.3rem, 4vw, 1.9rem);
+  background: linear-gradient(135deg, var(--gold-glow), var(--moon));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1.2; margin-bottom: 8px;
+}
+.modal-divider {
+  height: 1px; width: 100%;
+  background: linear-gradient(90deg, rgba(212,168,67,0.5), transparent);
+  margin: 16px 0;
+}
+.modal-lore {
+  font-size: .97rem; line-height: 1.9; color: rgba(232,224,255,0.78);
+}
+.modal-lore p { margin-bottom: 12px; }
+.modal-lore em { color: var(--moon); font-style: italic; }
+.modal-lore strong { color: var(--gold-glow); }
+.modal-keywords {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px;
+}
+.kw {
+  font-family: 'Cinzel', serif; font-size: .6rem; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--silver);
+  border: 1px solid rgba(200,186,255,0.2); border-radius: 20px;
+  padding: 3px 12px; background: rgba(200,186,255,0.05);
+}
+.modal-close {
+  position: absolute; top: 16px; right: 20px;
+  background: none; border: none; cursor: pointer;
+  color: var(--silver); font-size: 1.4rem;
+  opacity: 0.5; transition: opacity .2s, color .2s;
+  font-family: 'Cinzel', serif;
+  z-index: 10;
+}
+.modal-close:hover { opacity: 1; color: var(--gold-glow); }
+
+/* ═══ LANDSCAPE CARDS ═══ */
+.landscape-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 40px 80px;
+}
+.landscape-card {
+  width: 100%;
+  max-width: 620px;
+  cursor: pointer;
+  animation: cardRise 0.8s ease backwards;
+  perspective: 1200px;
+}
+.landscape-inner {
+  width: 100%;
+  height: 340px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 14px;
+}
+.landscape-card.revealed .landscape-inner {
+  transform: rotateX(180deg);
+}
+.landscape-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid rgba(212,168,67,0.35);
+  box-shadow: 0 10px 50px rgba(0,0,0,0.7), inset 0 0 40px rgba(0,0,0,0.3);
+  background: #05040f;
+}
+.landscape-face img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.landscape-back { z-index: 2; }
+.landscape-front {
+  transform: rotateX(180deg);
+  z-index: 1;
+}
+.landscape-card:hover .landscape-face {
+  border-color: rgba(212,168,67,0.7);
+  box-shadow: 0 0 40px rgba(212,168,67,0.25), 0 16px 60px rgba(0,0,0,0.7);
+}
+.landscape-card:hover .landscape-inner {
+  transform: rotateX(180deg) scale(1.015);
+}
+.landscape-label {
+  text-align: center; margin-top: 14px;
+}
+
+/* Modal variant for landscape scene cards */
+.modal-panel.is-landscape {
+  flex-direction: column;
+  width: min(700px, 92vw);
+}
+.modal-panel.is-landscape .modal-card-col {
+  width: 100%;
+  padding: 32px 36px 0 36px;
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+  position: static;
+}
+.modal-panel.is-landscape .modal-card-img.landscape {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.modal-panel.is-landscape .modal-card-name-wrap {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.modal-panel.is-landscape .modal-content-col {
+  border-left: none;
+  border-top: 1px solid rgba(212,168,67,0.1);
+  padding: 28px 36px 36px;
+  max-height: 320px;
+}
+
+/* ═══ SEPARATOR ═══ */
+.tarot-separator {
+  text-align: center; margin: 10px 0 50px;
+  color: rgba(212,168,67,0.3); letter-spacing: 16px; font-size: .9rem;
+}
+
+/* ═══ FOOTER ═══ */
+footer {
+  text-align: center; padding: 60px 20px 80px;
+  border-top: 1px solid rgba(212,168,67,0.08);
+}
+.footer-symbol { font-size: 2rem; color: var(--gold); opacity: 0.3; margin-bottom: 12px; }
+.footer-text {
+  font-family: 'IM Fell English', serif; font-style: italic;
+  color: rgba(200,186,255,0.3); font-size: .9rem; letter-spacing: 2px;
+}
+
+/* ═══ PARTICLE CURSOR ═══ */
+.cursor-particle {
+  position: fixed; pointer-events: none; z-index: 9999;
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--gold-glow);
+  transition: opacity 0.6s ease;
+}
+
+@media (max-width: 600px) {
+  :root { --card-w: 180px; --card-h: 305px; }
+  .modal-card-col { display: none; }
+  .modal-content-col { padding: 28px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="cosmos"></div>
+<div class="nebula"></div>
+<canvas id="stars"></canvas>
+
+<div class="page-wrap">
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="header-rune">☽ ✦ ☀</div>
+  <div class="title-eyebrow">The Sacred Lore of</div>
+  <h1 class="site-title">Yaevaria</h1>
+  <p class="site-subtitle">Tarot of the Holy Dukedom</p>
+  <div class="header-ornament-line">
+    <div class="orn-line"></div>
+    <div class="orn-diamond">◆</div>
+    <div class="orn-line"></div>
+  </div>
+  <p class="header-lore">
+    In the age before memory, the Sun God <em>Solarion</em> and the Moon God <em>Lunarion</em> walked the skies above a beloved continent. They divided the heavens between them — one bringing warmth, one bringing peace — never to catch one another in the endless cycle they called Day and Night. These cards hold their story.
+  </p>
+</header>
+
+<!-- ═══ GODS ═══ -->
+<div class="section-label">The First Cards</div>
+<div class="section-title">The Sky Gods</div>
+<p class="section-desc">The two opposing deities who gave Yaevaria its first light and shadow, forever chasing yet never meeting.</p>
+
+<div class="tarot-grid" id="grid-gods">
+  <!-- The Cycle & The Chaos filled by JS -->
+</div>
+
+<div class="tarot-separator">✦ · · · ✦ · · · ✦</div>
+
+<!-- ═══ CHARACTERS ═══ -->
+<div class="section-label">The Mortal Cards</div>
+<div class="section-title">Children of the Dukedom</div>
+<p class="section-desc">Those who carry the divine legacy in flesh and blood, forever bound to the gods' ancient sorrow.</p>
+
+<div class="tarot-grid" id="grid-mortals">
+</div>
+
+<div class="tarot-separator">✦ · · · ✦ · · · ✦</div>
+
+<!-- ═══ STORY ═══ -->
+<div class="section-label">The Lore Cards</div>
+<div class="section-title">Sacred Moments</div>
+<p class="section-desc">Pivotal scenes etched into the memory of Yaevaria — the love, the betrayal, and the tragedy that shaped a world.</p>
+
+<div class="tarot-grid" id="grid-lore">
+</div>
+
+<div class="tarot-separator">✦ · · · ✦ · · · ✦</div>
+
+<!-- ═══ MOMENTS ═══ -->
+<div class="section-label">The Wide Cards</div>
+<div class="section-title">Scenes of the Heart</div>
+<p class="section-desc">Moments too wide for a single card to contain — tender, fleeting, and etched into Yaevaria's memory.</p>
+
+<div class="landscape-grid" id="grid-scenes">
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-symbol">☽ ✦ ☀</div>
+  <div class="footer-text">Thus the cycle of day and night continued — a silent reminder of the tragedy that befell the gods.</div>
+</footer>
+
+</div><!-- /page-wrap -->
+
+<!-- ═══ MODAL ═══ -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-panel">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-card-col">
+      <img class="modal-card-img" id="modalImg" src="" alt="">
+      <div class="modal-card-name" id="modalCardName"></div>
+      <div class="modal-arcana" id="modalArcana"></div>
+    </div>
+    <div class="modal-content-col">
+      <div class="modal-eyebrow" id="modalEyebrow"></div>
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-divider"></div>
+      <div class="modal-lore" id="modalLore"></div>
+      <div class="modal-keywords" id="modalKeywords"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══ STAR CANVAS ═══ */
+(function(){
+  const c = document.getElementById('stars');
+  const ctx = c.getContext('2d');
+  let stars = [];
+  function resize() {
+    c.width = window.innerWidth; c.height = window.innerHeight;
+    stars = [];
+    for(let i=0;i<200;i++) stars.push({
+      x: Math.random()*c.width, y: Math.random()*c.height,
+      r: Math.random()*1.2+0.2,
+      a: Math.random(), da: (Math.random()-0.5)*0.005,
+      color: Math.random() > 0.7 ? '#c8baff' : '#e8e0ff'
+    });
+  }
+  resize(); window.addEventListener('resize', resize);
+  function draw() {
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(s => {
+      s.a = Math.max(0.05, Math.min(1, s.a + s.da));
+      if(s.a <= 0.05 || s.a >= 1) s.da *= -1;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = s.color;
+      ctx.globalAlpha = s.a * 0.6;
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ═══ CARD DATA ═══ */
+const IMGS = {
+  "card-back": "images/card-back.png",
+  "card-fool": "images/card-fool.png",
+  "card-knight": "images/card-knight.png",
+  "card-lovers": "images/card-lovers.png",
+  "card-origin": "images/card-origin.png",
+  "tarot-emperor": "images/tarot-emperor.png",
+  "tarot-empress": "images/tarot-empress.png",
+  "tarot-feel": "images/tarot-feel.png",
+  "tarot-fight": "images/tarot-fight.png",
+  "tarot-gods": "images/tarot-gods.png",
+  "tarot-knight": "images/tarot-knight.png",
+  "tarot-priest": "images/tarot-priest.png",
+  "tarot-smitten": "images/tarot-smitten.png"
+};
+const BACK = IMGS['card-back'];
+
+const CARDS = {
+  gods: [
+    {
+      img: IMGS['tarot-gods'],
+      name: 'The Cycle',
+      arcana: 'Major Arcana · I',
+      eyebrow: 'The Sky Gods',
+      title: 'Solarion & Lunarion',
+      keywords: ['Duality','Balance','Eternity','The Divine Cycle'],
+      lore: `<p>Before any mortal drew breath, two gods shared a continent they adored above all others. <strong>Solarion</strong>, golden and warm, ruled the hours of light — bringing heat to the fields, blessing the crops, and descending to walk among the people who prayed in his name.</p>
+<p><strong>Lunarion</strong>, silver and serene, came with the darkness — bestowing calm, silence, and the peace that allows the world to rest. They moved opposite to one another, two halves of an eternal rotation, never catching each other in the celestial dance they created.</p>
+<p><em>This is the Cycle — the first and most sacred truth of Yaevaria: that all things must turn, and what rises must also set.</em></p>`,
+    },
+    {
+      img: IMGS['tarot-fight'],
+      name: 'The Chaos',
+      arcana: 'Major Arcana · IX',
+      eyebrow: 'The Cataclysm',
+      title: 'The War of the Gods',
+      keywords: ['Betrayal','Wrath','Ruin','The Unforgivable'],
+      lore: `<p>When Solarion learned that Nerithia — the sea goddess he loved — had also given her heart to Lunarion, the sky itself cracked. The confrontation that followed was not merely between two gods; it was a collision of light and shadow, sun and moon, desire and grief.</p>
+<p>Solarion, consumed by rage, descended to claim Lunarion's son as his own and dragged the infant into the depths of the sea, severing the child's limbs with dark magic. The tranquil waters transformed forever into <em>The Abyssal Reef</em>.</p>
+<p>Lunarion, grief-stricken and furious, tore Solarion's son asunder in return — casting the fragments across the land, where each piece took root and erupted into <strong>volcanoes</strong> that belched fire and ash to this day.</p>
+<p><em>The Chaos card is drawn when something irreversible has already begun. There is no preventing what this card foretells.</em></p>`,
+    },
+  ],
+  mortals: [
+    {
+      img: IMGS['tarot-emperor'],
+      name: 'The Emperor',
+      arcana: 'Major Arcana · IV',
+      eyebrow: 'The Ruler of Yaevaria',
+      title: 'The Emperor',
+      keywords: ['Authority','Legacy','Sacred Rule','The Dark Crown'],
+      noFlip: true,
+      lore: `<p>lore here</p>`,
+    },
+    {
+      img: IMGS['tarot-empress'],
+      name: 'The Empress',
+      arcana: 'Major Arcana · III',
+      eyebrow: 'The Light of Yaevaria',
+      title: 'The Empress',
+      keywords: ['Abundance','Divinity','Fertility','The Golden Throne'],
+      noFlip: true,
+      lore: `<p>lore here</p>`,
+    },
+    {
+      img: IMGS['tarot-knight'],
+      name: 'The Knight',
+      arcana: 'Major Arcana · IV',
+      eyebrow: 'Sword of the Holy Empire',
+      title: 'The Knight',
+      keywords: ['Valor','Devotion','The Blue Rose','Sacred Oath'],
+      noFlip: true,
+      lore: `<p>lore here</p>`,
+    },
+    {
+      img: IMGS['tarot-priest'],
+      name: 'The Priest',
+      arcana: 'Major Arcana · V',
+      eyebrow: 'Voice of the Sky Gods',
+      title: 'The High Priest',
+      keywords: ['Wisdom','Scripture','The White Lily','Divine Knowledge'],
+      noFlip: true,
+      lore: `<p>lore here</p>`,
+    },
+  ],
+  lore: [
+    {
+      img: IMGS['card-origin'],
+      name: 'The Origin',
+      arcana: 'Story Card · I',
+      eyebrow: 'The Ancient Covenant',
+      title: 'The First Promise',
+      keywords: ['Love','The Sky Gate','A Promise','The Forest Border'],
+      lore: `<p>lore here</p>`,
+    },
+    {
+      img: IMGS['card-lovers'],
+      name: 'The Lovers',
+      arcana: 'Story Card · II',
+      eyebrow: 'blank & blank',
+      title: 'Marisandra\'s Secret',
+      keywords: ['Duplicity','The Sea','Moonlit Shore','The Hidden Name'],
+      lore: `<p>lore here</p>`,
+    },
+    {
+      img: IMGS['card-fool'],
+      name: "The Fool's Lover",
+      arcana: 'Story Card · III',
+      eyebrow: 'The Unsuspecting Sun',
+      title: 'Solarion\'s Blind Faith',
+      keywords: ['Ignorance','Trust','The Unseen','Before the Fall'],
+      lore: `<p>lore here</p>`,
+    },
+    {
+      img: IMGS['card-knight'],
+      name: 'The Knight\'s Oath',
+      arcana: 'Story Card · IV',
+      eyebrow: 'Love Among the Living',
+      title: 'The Mortal Lovers',
+      keywords: ['Devotion','The Flower Crown','Armor & Grace','A Quiet Moment'],
+      lore: `<p>lore here</p>`,
+    },
+  ]
+};
+
+const SCENES = [
+  {
+    img: IMGS['tarot-feel'],
+    backImg: IMGS['card-back'],
+    name: 'The Feeling of Love',
+    arcana: 'Scene Card · I',
+    eyebrow: 'The Garden Afternoon',
+    title: 'The Knight and Marchioness',
+    keywords: ['Courtship','Picnic','The Purple-Haired Knight','Roses & Tea'],
+    lore: `<p>lore here</p>`,
+  },
+  {
+    img: IMGS['tarot-smitten'],
+    backImg: IMGS['card-back'],
+    name: 'The Smitten Heart',
+    arcana: 'Scene Card · II',
+    eyebrow: 'The White Lily Offering',
+    title: 'An Unspoken Confession',
+    keywords: ['Shyness','Lilies','Devotion','The Unanswered Gaze'],
+    lore: `<p>He arrives bearing white lilies — Nerithia's sacred flower, the bloom that grew where the goddess died. In Adenca, gifting lilies is not a casual gesture. It says: <em>I think of something pure when I think of you.</em></p>
+<p>She turns her face away, fingers at her lips, a gold cross at her throat. She is blushing. He does not look at her directly either — his gaze is averted, the lilies held between them awkwardly.</p>
+<p>The <strong>Smitten Heart</strong> is the most understood card in Yaevaria's deck of fate. Everyone recognizes this moment: standing close to someone with a gift you've already given them, waiting to see if they will accept the meaning behind it, not just the flowers.</p>
+<p><em>"White lilies for the goddess. White lilies for the beloved. In Adenca, there is no difference."</em></p>`,
+  },
+];
+
+/* ═══ RENDER CARDS ═══ */
+function buildCard(data, container, delay) {
+  const div = document.createElement('div');
+  div.className = 'tarot-card' + (data.noFlip ? ' no-flip' : '');
+  div.style.animationDelay = delay + 'ms';
+
+  div.innerHTML = `
+    <div class="card-inner">
+      <div class="card-face card-back-face">
+        <img src="${BACK}" alt="card back" loading="lazy">
+      </div>
+      <div class="card-face card-front-face">
+        <img src="${data.img}" alt="${data.name}" loading="lazy">
+      </div>
+    </div>
+    <div class="card-label">
+      <div class="card-name">${data.name}</div>
+      <div class="card-epithet">${data.arcana}</div>
+    </div>
+  `;
+
+  // Hover flip for non-noFlip cards
+  if (!data.noFlip) {
+    div.addEventListener('mouseenter', () => div.classList.add('revealed'));
+    div.addEventListener('mouseleave', () => div.classList.remove('revealed'));
+  }
+
+  // Click opens modal
+  div.addEventListener('click', () => openModal(data));
+
+  container.appendChild(div);
+}
+
+function renderSection(key, containerId) {
+  const container = document.getElementById(containerId);
+  CARDS[key].forEach((c, i) => buildCard(c, container, i * 100));
+}
+
+renderSection('gods', 'grid-gods');
+renderSection('mortals', 'grid-mortals');
+renderSection('lore', 'grid-lore');
+
+/* ═══ LANDSCAPE BUILDER ═══ */
+function buildLandscapeCard(data, container, delay) {
+  const div = document.createElement('div');
+  div.className = 'landscape-card';
+  div.style.animationDelay = delay + 'ms';
+
+  div.innerHTML = `
+    <div class="landscape-inner">
+      <div class="landscape-face landscape-back">
+        <img src="${BACK}" alt="card back" loading="lazy" style="object-position:center;object-fit:cover;">
+      </div>
+      <div class="landscape-face landscape-front">
+        <img src="${data.img}" alt="${data.name}" loading="lazy">
+      </div>
+    </div>
+    <div class="landscape-label">
+      <div class="card-name">${data.name}</div>
+      <div class="card-epithet">${data.arcana}</div>
+    </div>
+  `;
+
+  div.addEventListener('mouseenter', () => div.classList.add('revealed'));
+  div.addEventListener('mouseleave', () => div.classList.remove('revealed'));
+  div.addEventListener('click', () => openModal(data, true));
+
+  container.appendChild(div);
+}
+
+(function() {
+  const c = document.getElementById('grid-scenes');
+  SCENES.forEach((s, i) => buildLandscapeCard(s, c, i * 150));
+})();
+
+/* ═══ MODAL ═══ */
+const modal = document.getElementById('modal');
+const modalClose = document.getElementById('modalClose');
+
+function openModal(data, isLandscape) {
+  const panel = document.querySelector('.modal-panel');
+  const img = document.getElementById('modalImg');
+  const cardCol = document.querySelector('.modal-card-col');
+
+  img.src = data.img;
+  img.alt = data.name;
+
+  if (isLandscape) {
+    panel.classList.add('is-landscape');
+    img.className = 'modal-card-img landscape';
+    // For landscape: image spans full width, name/arcana go below it
+    cardCol.innerHTML = `
+      <img class="modal-card-img landscape" src="${data.img}" alt="${data.name}" id="modalImg">
+      <div class="modal-card-name-wrap">
+        <div class="modal-card-name" id="modalCardName">${data.name}</div>
+        <div class="modal-arcana" id="modalArcana">${data.arcana}</div>
+      </div>
+    `;
+  } else {
+    panel.classList.remove('is-landscape');
+    img.className = 'modal-card-img';
+    cardCol.innerHTML = `
+      <img class="modal-card-img" src="${data.img}" alt="${data.name}" id="modalImg">
+      <div class="modal-card-name" id="modalCardName">${data.name}</div>
+      <div class="modal-arcana" id="modalArcana">${data.arcana}</div>
+    `;
+  }
+
+  document.getElementById('modalCardName').textContent = data.name;
+  document.getElementById('modalArcana').textContent = data.arcana;
+  document.getElementById('modalEyebrow').textContent = data.eyebrow;
+  document.getElementById('modalTitle').textContent = data.title;
+  document.getElementById('modalLore').innerHTML = data.lore;
+  const kw = document.getElementById('modalKeywords');
+  kw.innerHTML = (data.keywords || []).map(k => `<span class="kw">${k}</span>`).join('');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  modal.classList.remove('open');
+  document.querySelector('.modal-panel').classList.remove('is-landscape');
+  document.body.style.overflow = '';
+}
+modalClose.addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+/* ═══ CURSOR PARTICLES ═══ */
+document.addEventListener('mousemove', e => {
+  if(Math.random() > 0.85) {
+    const p = document.createElement('div');
+    p.className = 'cursor-particle';
+    p.style.left = (e.clientX + (Math.random()-0.5)*10) + 'px';
+    p.style.top  = (e.clientY + (Math.random()-0.5)*10) + 'px';
+    p.style.width = p.style.height = (Math.random()*3+1) + 'px';
+    p.style.background = Math.random() > 0.5 ? '#d4a843' : '#c8baff';
+    p.style.opacity = '0.8';
+    document.body.appendChild(p);
+    setTimeout(() => { p.style.opacity = '0'; setTimeout(() => p.remove(), 600); }, 50);
+  }
+});
+</script>
+</body>
+</html>
